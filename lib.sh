@@ -178,7 +178,7 @@ report()
 {
     pid=$(eval echo '$'"${1}_capture")
     if [ "$pid" ]; then
-	kill $pid && wait $pid
+	kill $pid 2>/dev/null && wait $pid
 	eval "unset ${1}_capture"
     fi
 
