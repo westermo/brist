@@ -164,7 +164,7 @@ _capture()
 
 capture()
 {
-    step Capture on $yports
+    step "Capture on $*"
 
     while [ $# -gt 0 ]; do
 	_capture $1
