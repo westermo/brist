@@ -1,5 +1,6 @@
 tcpdump="${BRIST_TCPDUMP:-tcpdump}"
 socat="${BRIST_SOCAT:-socat}"
+PATH=$PATH:/usr/sbin
 
 die()
 {
