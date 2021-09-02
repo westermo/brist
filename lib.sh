@@ -151,7 +151,7 @@ _capture()
     shift $((OPTIND - 1))
 
     rm -f $pcap
-    $tcpdump -pqU -i $1 -w $pcap "$filter"  &
+    $tcpdump -pqU -i $1 -w $pcap "$filter" 2>/dev/null &
     eval "${1}_capture=$!"
 
     for i in $(seq 5); do
@@ -182,7 +182,7 @@ report()
 	eval "unset ${1}_capture"
     fi
 
-    $tcpdump -A -r $t_work/${1}.pcap
+    $tcpdump -A -r $t_work/${1}.pcap 2>/dev/null
 }
 
 inject()
