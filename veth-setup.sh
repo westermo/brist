@@ -1,3 +1,5 @@
+# shellcheck disable=SC2034
+
 conf_capture_delay=1
 conf_inject_delay=1
 loops="1 2 3"

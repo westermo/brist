@@ -1,6 +1,8 @@
 # Basic VLAN forwarding test. Two access ports in separate VLANS and one
 # trunk port.  Inject frames on both access ports and verify blocking on
 # one VLAN on the trunk.
+# shellcheck disable=SC2154 disable=SC2046 disable=SC2086
+
 basic_stp_vlan()
 {
     require3loops

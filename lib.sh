@@ -1,10 +1,12 @@
+# shellcheck disable=SC1004 disable=SC2154
+
 tcpdump="${BRIST_TCPDUMP:-tcpdump}"
 socat="${BRIST_SOCAT:-socat}"
 PATH=$PATH:/usr/sbin
 
 die()
 {
-    echo "error: $@" >&2
+    echo "error: $*" >&2
     exit 1
 }
 
@@ -35,17 +37,18 @@ alias require4loops='{ \
 
 step()
 {
-    t_step="$@"
-    printf "\e[1m$t_current:\e[0m $t_step\n"
+    t_step="$*"
+    printf "\e[1m%s:\e[0m %s\n" "$t_current" "$t_step"
 }
 
 depcheck()
 {
-    $@ -h >/dev/null 2>&1 && return
+    "$@" -h >/dev/null 2>&1 && return
 
-    die "\"$@\" is missing"
+    die "\"$*\" is missing"
 }
 
+# shellcheck disable=SC2086
 phys()
 {
     eval echo '$'${1}${2}
@@ -53,7 +56,7 @@ phys()
 
 car()
 {
-    echo $1
+    echo "$1"
 }
 
 cdr()
@@ -72,12 +75,14 @@ be16()
     printf '\\%3.3o\\%3.3o' $(($1 >> 8)) $(($1 & 0xff))
 }
 
+# shellcheck disable=SC2183 disable=SC2086
 addrfmt()
 {
-    bytes=$(echo 0x$@ | sed -e 's/:/ 0x/g')
+    bytes=$(echo 0x$* | sed -e 's/:/ 0x/g')
     printf '\\%3.3o\\%3.3o\\%3.3o\\%3.3o\\%3.3o\\%3.3o' $bytes
 }
 
+# shellcheck disable=SC2183 disable=SC2046
 rndaddr()
 {
     printf '%2.2x:%2.2x:%2.2x:%2.2x:%2.2x:%2.2x' \
@@ -86,9 +91,10 @@ rndaddr()
 
 ifaddr()
 {
-    ip -br link show dev $1 | awk '{ print($3); }'
+    ip -br link show dev "$1" | awk '{ print($3); }'
 }
 
+# shellcheck disable=SC2046 disable=SC2059 disable=SC2086
 eth()
 {
     da="$(addrfmt $(rndaddr))"
@@ -136,7 +142,7 @@ eth()
 _capture()
 {
     filter="ether proto 0xbbbb"
-    pcap=$t_work/${1}.pcap
+    pcap="$t_work"/${1}.pcap
 
     while getopts "f:" opt; do
 	case $opt in
@@ -151,16 +157,17 @@ _capture()
 
     shift $((OPTIND - 1))
 
-    rm -f $pcap
-    $tcpdump -pqU -i $1 -w $pcap "$filter" 2>/dev/null &
+    rm -f "$pcap"
+    $tcpdump -pqU -i "$1" -w "$pcap" "$filter" 2>/dev/null &
     eval "${1}_capture=$!"
 
+    #shellcheck disable=SC2034
     for i in $(seq 5); do
-	[ -f $pcap ] && return 0
+	[ -f "$pcap" ] && return 0
 	sleep 0.1
     done
 
-    die unable to start capture on $1
+    die "unable to start capture on $1"
 }
 
 capture()
@@ -168,33 +175,33 @@ capture()
     step "Capture on $*"
 
     while [ $# -gt 0 ]; do
-	_capture $1
+	_capture "$1"
 	shift
     done
 
-    [ "$conf_capture_delay" ] && sleep $conf_capture_delay
+    [ "$conf_capture_delay" ] && sleep "$conf_capture_delay"
 }
 
 report()
 {
     pid=$(eval echo '$'"${1}_capture")
     if [ "$pid" ]; then
-	kill $pid 2>/dev/null && wait $pid
+	kill "$pid" 2>/dev/null && wait "$pid"
 	eval "unset ${1}_capture"
     fi
 
-    $tcpdump -A -r $t_work/${1}.pcap 2>/dev/null
+    $tcpdump -A -r "$t_work/${1}.pcap" 2>/dev/null
 }
 
 inject()
 {
     # Collect all data to make sure that we hand it to socat in a
     # single write(1).
-    cat >$t_work/last.bin
+    cat >"$t_work/last.bin"
 
-    $socat -u open:$t_work/last.bin interface:$1
+    $socat -u open:"$t_work/last.bin" "interface:$1"
 
-    [ "$conf_inject_delay" ] && sleep $conf_inject_delay
+    [ "$conf_inject_delay" ] && sleep "$conf_inject_delay"
 }
 
 create_br()
@@ -203,13 +210,13 @@ create_br()
     opts=$2
     shift 2
 
-    ip link add dev $br type bridge $opts
-    ip link set dev $br up
+    # shellcheck disable=SC2086
+    ip link add dev "$br" type bridge $opts
+    ip link set dev "$br" up
 
     while [ $# -gt 0 ]; do
-	ip link set dev $1 master $br
+	ip link set dev "$1" master "$br"
 	shift
     done
 }
-
 

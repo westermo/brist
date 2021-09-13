@@ -1,18 +1,19 @@
+# shellcheck disable=SC2154 disable=SC2086
 
 topology()
 {
     capture $hports
 
-    step Inject packets on $bports
+    step "Inject packets on $bports"
     for x in $bports; do
-	eth | { cat; echo from $x; } | inject $x
+	eth | { cat; echo "from $x"; } | inject "$x"
     done
 
     for loop in $loops; do
 	x=$(phys b $loop)
 	y=$(phys h $loop)
-	step Verify connection between $x and $y
-	report $y | grep -q "from $x" || fail
+	step "Verify connection between $x and $y"
+	report "$y" | grep -q "from $x" || fail
     done
 
     pass
