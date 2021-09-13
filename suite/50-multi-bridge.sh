@@ -3,30 +3,30 @@ multi_learning_port()
 {
     require3loops
 
-    create_br $br0 "vlan_default_pvid 0" $ax
-    create_br $br1 "vlan_default_pvid 0" $(cdr $xports)
+    create_br $br0 "vlan_default_pvid 0" $b1
+    create_br $br1 "vlan_default_pvid 0" $(cdr $bports)
 
-    step Inject learning frame on $by
-    eth -b -i $by | { cat; echo from $by; } | inject $by
+    step Inject learning frame on $h2
+    eth -b -i $h2 | { cat; echo from $h2; } | inject $h2
 
-    step Inject learning frame on $ay, re-using ${by}s address
-    eth -b -i $by | { cat; echo from $by; } | inject $by
+    step Inject learning frame on $h1, re-using ${h2}s address
+    eth -b -i $h2 | { cat; echo from $h2; } | inject $h2
 
-    capifs="$br0 $br1 $ay $(cdr $(cdr $yports))"
+    capifs="$br0 $br1 $h1 $(cdr $(cdr $hports))"
     capture $capifs
 
-    step Inject return traffic towards $by from $cy
-    eth -I $by -i $cy | { cat; echo reply from $cy; } | inject $cy
+    step Inject return traffic towards $h2 from $h3
+    eth -I $h2 -i $h3 | { cat; echo reply from $h3; } | inject $h3
 
     for y in $capifs; do
 	case $y in
-	    ${br0}|${br1}|${ay})
+	    ${br0}|${br1}|${h1})
 		step Verify absence of reply on $y
-		report $y | grep -q "reply from $cy" && fail
+		report $y | grep -q "reply from $h3" && fail
 		;;
 	    *)
 		step Verify reply on $y
-		report $y | grep -q "reply from $cy" || fail
+		report $y | grep -q "reply from $h3" || fail
 		;;
 	esac
     done

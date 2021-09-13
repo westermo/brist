@@ -42,9 +42,9 @@ mkdir -p $work || die unable to create $work
 br0=${br0:-brist0}
 br1=${br1:-brist1}
 
-ports="$ax $ay $bx $by $cx $cy $dx $dy"
-xports="$ax $bx $cx $dx"
-yports="$ay $by $cy $dy"
+ports="$h1 $b1 $h2 $b2 $h3 $b3 $h4 $b5"
+bports="$b1 $b2 $b3 $b4"
+hports="$h1 $h2 $h3 $h4"
 
 echo Setup OK >&2
 

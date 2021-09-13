@@ -1,14 +1,14 @@
 
 basic_broadcast_host()
 {
-    create_br $br0 "" $xports
+    create_br $br0 "" $bports
 
-    capture $yports
+    capture $hports
 
     step Inject broadcast on $br0
     eth -b | { cat; echo from $br0; } | inject $br0
 
-    for y in $yports; do
+    for y in $hports; do
 	step Verify broadcast on $y
 	report $y | grep -q "from $br0" || fail
     done
@@ -21,16 +21,16 @@ basic_broadcast_port()
 {
     require2loops
 
-    create_br $br0 "" $xports
+    create_br $br0 "" $bports
 
-    capture $(cdr $yports)
+    capture $(cdr $hports)
 
-    step Inject broadcast on $ay
-    eth -b | { cat; echo from $ay; } | inject $ay
+    step Inject broadcast on $h1
+    eth -b | { cat; echo from $h1; } | inject $h1
 
-    for y in $(cdr $yports); do
+    for y in $(cdr $hports); do
 	step Verify broadcast on $y
-	report $y | grep -q "from $ay" || fail
+	report $y | grep -q "from $h1" || fail
     done
 
     pass
@@ -41,22 +41,22 @@ basic_learning_host()
 {
     require2loops
 
-    create_br $br0 "vlan_default_pvid 0" $xports
+    create_br $br0 "vlan_default_pvid 0" $bports
 
     step Inject learning frame on $br0
     eth -b -i $br0 | { cat; echo from $br0; } | inject $br0
 
-    capture $br0 $(cdr $yports)
+    capture $br0 $(cdr $hports)
 
-    step Inject return traffic towards $br0 from $ay
-    eth -I $br0 -i $ay | { cat; echo reply from $ay; } | inject $ay
+    step Inject return traffic towards $br0 from $h1
+    eth -I $br0 -i $h1 | { cat; echo reply from $h1; } | inject $h1
 
     step Verify reply on $br0
-    report $br0 | grep -q "reply from $ay" || fail
+    report $br0 | grep -q "reply from $h1" || fail
 
-    for y in $(cdr $yports); do
+    for y in $(cdr $hports); do
 	step Verify absence of reply on $y
-	report $y | grep -q "reply from $ay" && fail
+	report $y | grep -q "reply from $h1" && fail
     done
 
     pass
@@ -67,23 +67,23 @@ basic_learning_port()
 {
     require3loops
 
-    create_br $br0 "" $xports
+    create_br $br0 "" $bports
 
-    step Inject learning frame on $by
-    eth -b -i $by | { cat; echo from $by; } | inject $by
+    step Inject learning frame on $h2
+    eth -b -i $h2 | { cat; echo from $h2; } | inject $h2
 
-    capture $br0 $(cdr $yports)
+    capture $br0 $(cdr $hports)
 
-    step Inject return traffic towards $by from $ay
-    eth -I $by -i $ay | { cat; echo reply from $ay; } | inject $ay
+    step Inject return traffic towards $h2 from $h1
+    eth -I $h2 -i $h1 | { cat; echo reply from $h1; } | inject $h1
 
-    for y in $br0 $(cdr $yports); do
-	if [ "$y" = "$by" ]; then
+    for y in $br0 $(cdr $hports); do
+	if [ "$y" = "$h2" ]; then
 	    step Verify reply on $y
-	    report $y | grep -q "reply from $ay" || fail
+	    report $y | grep -q "reply from $h1" || fail
 	else
 	    step Verify absence of reply on $y
-	    report $y | grep -q "reply from $ay" && fail
+	    report $y | grep -q "reply from $h1" && fail
 	fi
     done
 

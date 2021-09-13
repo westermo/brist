@@ -1,20 +1,21 @@
 conf_capture_delay=1
 conf_inject_delay=1
+loops="1 2 3"
 
-for port in vax vay vbx vby vcx vcy; do
-    ip link del dev $port type veth >/dev/null 2>&1
+for i in $loops; do
+    ip link del dev "vh$i" type veth >/dev/null 2>&1
 done
 
-ip link add dev vax type veth peer name vay && \
-ip link add dev vbx type veth peer name vby && \
-ip link add dev vcx type veth peer name vcy || \
-	{ echo unable to create veth pairs >&2; exit 1; }
+for i in 1 2 3; do
+    if ! ip link add dev "vb$i" type veth peer name "vh$i"; then
+	echo "unable to create veth pair $i" >&2
+	exit 1
+    fi
+done
 
-ax=vax
-ay=vay
-bx=vbx
-by=vby
-cx=vcx
-cy=vcy
-
-loops="a b c"
+b1=vb1
+h1=vh1
+b2=vb2
+h2=vh2
+b3=vb3
+h3=vh3
