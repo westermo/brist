@@ -40,6 +40,19 @@ $ make check BRIST_TEST=basic_stp_vlan
 ```
 
 
+Adding a Test
+-------------
+
+The `suite/` directory holds all test cases.  There are a few things to
+know when adding a new test case:
+
+  - Tests must be possible to run with VETH pairs and on a target device
+  - Logical port names are `hN <--> bN`, where:
+    - `hN` is a numbered host port, and
+    - `bN` is the other end of that pair/cable attached to the bridge
+  - Similarly, the fallback VETH topology have names `vhN` and `vbN`
+
+
 Origin
 ------
 
