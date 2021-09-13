@@ -94,6 +94,19 @@ ifaddr()
     ip -br link show dev "$1" | awk '{ print($3); }'
 }
 
+# Generate low-level Ethernet frames for basic layer-2 tests.
+# For layer-3 and upwards, use ping, nemesis or other tools.
+#
+# Legend:
+#   b: broadcast dest addr
+#   d: local dest addr from arg
+#   g: global dest addr from arg (multicast)
+#   i: source addr from interface arg
+#   i: dest addr from interface arg
+#   q: 802.1Q VLAN tag with VID arg
+#   s: local source addr from arg
+#   t: ether type/len from arg
+#
 # shellcheck disable=SC2046 disable=SC2059 disable=SC2086
 eth()
 {
