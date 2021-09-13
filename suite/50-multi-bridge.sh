@@ -1,3 +1,4 @@
+# Verifies FDB isolation in HW offloaded bridges
 
 multi_learning_port()
 {
@@ -10,7 +11,7 @@ multi_learning_port()
     eth -b -i $h2 | { cat; echo from $h2; } | inject $h2
 
     step Inject learning frame on $h1, re-using ${h2}s address
-    eth -b -i $h2 | { cat; echo from $h2; } | inject $h2
+    eth -b -i $h2 | { cat; echo from $h1; } | inject $h1
 
     capifs="$br0 $br1 $h1 $(cdr $(cdr $hports))"
     capture $capifs
