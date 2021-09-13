@@ -49,8 +49,6 @@ ports="$h1 $b1 $h2 $b2 $h3 $b3 $h4 $b5"
 bports="$b1 $b2 $b3 $b4"
 hports="$h1 $h2 $h3 $h4"
 
-echo Setup OK >&2
-
 for suite in "$root"/suite/*.sh; do
     . "$suite"
 done
@@ -58,6 +56,7 @@ done
 sum_pass=0
 sum_skip=0
 sum_fail=0
+sum_total=0
 
 for t in $(echo "$alltests" | tr ' ' '\n' | grep -E "$BRIST_TEST"); do
     t_work=$work/$t
@@ -68,28 +67,49 @@ for t in $(echo "$alltests" | tr ' ' '\n' | grep -E "$BRIST_TEST"); do
     mkdir -p "$t_work"
     origo
 
-    printf "\e[7m$t: start (%s)\e[0m\n" "$(date)"
-    $t || { step explicit return; t_status=2; }
+    # silent output by default, unless running a single test
+    if [ -z "$BRIST_TEST" ]; then
+	printf "\e[7m$t: start (%s)\e[0m\n" "$(date)" >"$t_work/output"
+	$t >"$t_work/output" 2>&1 || { step explicit return; t_status=2; }
+    else
+	printf "\e[7m$t: start (%s)\e[0m\n" "$(date)" >"$t_work/output"
+	$t || { step explicit return; t_status=2; }
+    fi
     case $t_status in
 	0)
 	    sum_pass=$((sum_pass + 1))
-	    printf "\e[7m%s: pass\e[0m\n" "$t"
+	    printf "\e[32mPASS\e[0m: %s\n" "$t"
 	    ;;
 	1)
 	    sum_skip=$((sum_skip + 1))
-	    printf "\e[7m%s: skip ($t_step)\e[0m\n" "$t"
+	    printf "\e[33mSKIP\e[0m: %s - $t_step\n" "$t"
 	    ;;
 	2)
 	    sum_fail=$((sum_fail + 1))
-	    printf "\e[7m%s: FAIL ($t_step)\e[0m\n" "$t"
+	    printf "\e[31mFAIL\e[0m: %s - $t_step\n" "$t"
+	    # show output of failed test in suite mode
+	    [ -z "$BRIST_TEST" ] && cat "$t_work/output"
 	    ;;
     esac
-    echo
+    sum_total=$((sum_total + 1))
 done
 
-cat <<EOF
-summary:
-  pass: $sum_pass
-  skip: $sum_skip
-  fail: $sum_fail
-EOF
+printf "============================================================================\n"
+printf "Test suite summary:\n"
+printf "  TOTAL: %d\n" $sum_total
+if [ $sum_pass -ne 0 ]; then
+    printf "  \e[32mPASS:  %d\e[0m\n" $sum_pass
+else
+    printf "  PASS:  0\n"
+fi
+if [ $sum_skip -ne 0 ]; then
+    printf "  \e[33mSKIP:  %d\e[0m\n" $sum_skip
+else
+    printf "  SKIP:  0\n"
+fi
+if [ $sum_fail -ne 0 ]; then
+    printf "  \e[31mFAIL:  %d\e[0m\n" $sum_fail
+else
+    printf "  FAIL:  0\n"
+fi
+printf "============================================================================\n"
