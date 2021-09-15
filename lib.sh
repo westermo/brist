@@ -154,21 +154,8 @@ eth()
 
 _capture()
 {
-    filter="ether proto 0xbbbb"
     pcap="$t_work"/${1}.pcap
-
-    while getopts "f:" opt; do
-	case $opt in
-	    f)
-		filter="$OPTARG"
-		;;
-	    *)
-		exit 1
-		;;
-	esac
-    done
-
-    shift $((OPTIND - 1))
+    filter=${2}
 
     rm -f "$pcap"
     $tcpdump -pqU -i "$1" -w "$pcap" "$filter" 2>/dev/null &
@@ -185,10 +172,24 @@ _capture()
 
 capture()
 {
+    filter="ether proto 0xbbbb"
+
+    while getopts "f:" opt; do
+	case $opt in
+	    f)
+		filter="$OPTARG"
+		;;
+	    *)
+		exit 1
+		;;
+	esac
+    done
+
+    shift $((OPTIND - 1))
     step "Capture on $*"
 
     while [ $# -gt 0 ]; do
-	_capture "$1"
+	_capture "$1" "$filter"
 	shift
     done
 
