@@ -14,6 +14,7 @@ but also on a limited embedded system.
 Dependencies, in order of importance:
 
   - dash, or BusyBox ash
+  - fakeroot
   - socat
   - ping
   - tcpdump
