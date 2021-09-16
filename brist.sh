@@ -53,6 +53,13 @@ for suite in "$root"/suite/*.sh; do
     . "$suite"
 done
 
+results="$work/test-results.txt"
+if [ -z "$BRIST_TEST" ]; then
+    printf "\e[7mbrist: running suite, log at %s\e[0m\n" "$results"    | tee $results
+else
+    printf "\e[7mbrist: %s, log at %s\e[0m\n" "$BRIST_TEST" "$results" | tee $results
+fi
+
 sum_pass=0
 sum_skip=0
 sum_fail=0
@@ -60,6 +67,7 @@ sum_total=0
 
 for t in $(echo "$alltests" | tr ' ' '\n' | grep -E "$BRIST_TEST"); do
     t_work=$work/$t
+    t_outp=$t_work/output
     t_current=$t
     t_step=Setup
     t_status=2
@@ -69,47 +77,48 @@ for t in $(echo "$alltests" | tr ' ' '\n' | grep -E "$BRIST_TEST"); do
 
     # silent output by default, unless running a single test
     if [ -z "$BRIST_TEST" ]; then
-	printf "\e[7m$t: start (%s)\e[0m\n" "$(date)" >"$t_work/output"
-	$t >"$t_work/output" 2>&1 || { step explicit return; t_status=2; }
+	printf "\e[1m%s:\e[0m started at %s\n" "$t" "$(date)" > "$t_outp"
+	$t >> "$t_outp" 2>&1 || { step explicit return; t_status=2; }
     else
-	printf "\e[7m$t: start (%s)\e[0m\n" "$(date)" >"$t_work/output"
+	printf "\e[1m%s:\e[0m started at %s\n" "$t" "$(date)"
 	$t || { step explicit return; t_status=2; }
     fi
     case $t_status in
 	0)
 	    sum_pass=$((sum_pass + 1))
-	    printf "\e[32mPASS\e[0m: %s\n" "$t"
+	    printf "\e[32mPASS\e[0m: %s\n" "$t"           | tee -a "$t_outp"
 	    ;;
 	1)
 	    sum_skip=$((sum_skip + 1))
-	    printf "\e[33mSKIP\e[0m: %s - $t_step\n" "$t"
+	    printf "\e[33mSKIP\e[0m: %s - $t_step\n" "$t" | tee -a "$t_outp"
 	    ;;
 	2)
 	    sum_fail=$((sum_fail + 1))
-	    printf "\e[31mFAIL\e[0m: %s - $t_step\n" "$t"
-	    # show output of failed test in suite mode
-	    [ -z "$BRIST_TEST" ] && cat "$t_work/output"
+	    printf "\e[31mFAIL\e[0m: %s - $t_step\n" "$t" | tee -a "$t_outp"
 	    ;;
     esac
+
     sum_total=$((sum_total + 1))
+    cat "$t_outp" >> "$results"
+    echo >> "$results"
 done
 
-printf "============================================================================\n"
-printf "Test suite summary:\n"
-printf "  TOTAL: %d\n" $sum_total
+printf "============================================================================\n" | tee -a "$results"
+printf "Test suite summary:\n"                  | tee -a "$results"
+printf "  TOTAL: %d\n" $sum_total               | tee -a "$results"
 if [ $sum_pass -ne 0 ]; then
-    printf "  \e[32mPASS:  %d\e[0m\n" $sum_pass
+    printf "  \e[32mPASS:  %d\e[0m\n" $sum_pass | tee -a "$results"
 else
-    printf "  PASS:  0\n"
+    printf "  PASS:  0\n"                       | tee -a "$results"
 fi
 if [ $sum_skip -ne 0 ]; then
-    printf "  \e[33mSKIP:  %d\e[0m\n" $sum_skip
+    printf "  \e[33mSKIP:  %d\e[0m\n" $sum_skip | tee -a "$results"
 else
-    printf "  SKIP:  0\n"
+    printf "  SKIP:  0\n"                       | tee -a "$results"
 fi
 if [ $sum_fail -ne 0 ]; then
-    printf "  \e[31mFAIL:  %d\e[0m\n" $sum_fail
+    printf "  \e[31mFAIL:  %d\e[0m\n" $sum_fail | tee -a "$results"
 else
-    printf "  FAIL:  0\n"
+    printf "  FAIL:  0\n"                       | tee -a "$results"
 fi
-printf "============================================================================\n"
+printf "============================================================================\n" | tee -a "$results"
