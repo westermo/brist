@@ -18,9 +18,13 @@ Dependencies, in order of importance:
   - socat
   - ping
   - tcpdump
+  - tshark
   - iproute2 tools (ip, bridge, ...)
   - unshare
   - make
+
+> Currently `tshark` is used from `make check` to capture traffic,
+> because `tcpdump` does not work properly inside an `unshare -rn`.
 
 
 Running the Test Suite

@@ -1,4 +1,8 @@
-export BRIST_TCPDUMP = fakeroot tcpdump -Zroot
+# When installed, on target systems, we assume we have tcpdump
+# (brist.sh), but from host systems that run from `make check`
+# we use tshark since it works better in an unshare/nsenter.
+export BRIST_TCPDUMP = tshark
+export BRIST_CAPREAD = fakeroot tcpdump
 
 all: check
 

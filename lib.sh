@@ -1,6 +1,8 @@
 # shellcheck disable=SC1004 disable=SC2154
 
-tcpdump="${BRIST_TCPDUMP:-tcpdump}"
+tcpdump="${BRIST_TCPDUMP:-tcpdump -qU}"
+capread="${BRIST_CAPREAD:-tcpdump}"
+
 socat="${BRIST_SOCAT:-socat}"
 PATH=$PATH:/usr/sbin
 
@@ -158,7 +160,8 @@ _capture()
     filter=${2}
 
     rm -f "$pcap"
-    $tcpdump -pqU -i "$1" -w "$pcap" "$filter" 2>/dev/null &
+    # Note: arguments must be compatible with tshark as well!
+    $tcpdump -lnp -i "$1" -w "$pcap" -s 128 "$filter" 2>/dev/null &
     eval "${1}_capture=$!"
 
     #shellcheck disable=SC2034
@@ -204,7 +207,7 @@ report()
 	eval "unset ${1}_capture"
     fi
 
-    $tcpdump -A -r "$t_work/${1}.pcap" 2>/dev/null
+    $capread -A -r "$t_work/${1}.pcap" 2>/dev/null
 }
 
 inject()
