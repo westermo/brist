@@ -154,6 +154,15 @@ eth()
     printf "${da}${sa}${qtag}${et}"
 }
 
+_kill_capture()
+{
+    pid=$(eval echo '$'"${1}_capture")
+    if [ -n "$pid" ]; then
+	kill -1 "$pid" && wait "$pid"
+	eval "unset ${1}_capture"
+    fi
+}
+
 _capture()
 {
     pcap="$t_work"/${1}.pcap
@@ -199,9 +208,26 @@ capture()
     [ "$conf_capture_delay" ] && sleep "$conf_capture_delay"
 }
 
+# shellcheck disable=SC2086
 report()
 {
-    pid=$(eval echo '$'"${1}_capture")
+    opts="-n -A"
+
+    while getopts "o:" opt; do
+	case $opt in
+	    o)
+		opts="$OPTARG"
+		;;
+	    *)
+		exit 1
+		;;
+	esac
+    done
+    shift $((OPTIND - 1))
+
+    _kill_capture "${1}"
+    $capread $opts -r "$t_work/${1}.pcap" 2>/dev/null
+}
     if [ "$pid" ]; then
 	kill "$pid" 2>/dev/null && wait "$pid"
 	eval "unset ${1}_capture"
