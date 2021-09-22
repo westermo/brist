@@ -45,6 +45,7 @@ install:
 	for file in $(SCRIPTS); do					\
 		install -m 0644 $$file $(DESTDIR)$(libdir)/$$file;	\
 	done
+	chmod +x $(DESTDIR)$(libdir)/brist.sh
 
 uninstall:
 	-$(RM)    $(DESTDIR)$(bindir)/$(NAME)
