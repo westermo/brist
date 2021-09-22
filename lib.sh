@@ -18,21 +18,21 @@ alias pass='{ t_status=0; return 0; }'
 
 alias require2loops='{ \
       if [ $(echo $loops | wc -w) -lt 2 ]; then \
-         step Require at least 2 loops; \
+         step "Require at least 2 loops"; \
 	 skip; \
       fi \
 }'
 
 alias require3loops='{ \
       if [ $(echo $loops | wc -w) -lt 3 ]; then \
-         step Require at least 3 loops; \
+         step "Require at least 3 loops"; \
 	 skip; \
       fi \
 }'
 
 alias require4loops='{ \
       if [ $(echo $loops | wc -w) -lt 4 ]; then \
-         step Require at least 4 loops; \
+         step "Require at least 4 loops"; \
 	 skip; \
       fi \
 }'
@@ -161,7 +161,7 @@ _capture()
 
     rm -f "$pcap"
     # Note: arguments must be compatible with tshark as well!
-    $tcpdump -lnp -i "$1" -w "$pcap" -s 128 "$filter" 2>/dev/null &
+    $tcpdump -q -lnp -i "$1" -w "$pcap" -s 128 "$filter" 2>/dev/null &
     eval "${1}_capture=$!"
 
     #shellcheck disable=SC2034
@@ -189,7 +189,7 @@ capture()
     done
 
     shift $((OPTIND - 1))
-    step "Capture on $*"
+    step "$*: capturing $filter ..."
 
     while [ $# -gt 0 ]; do
 	_capture "$1" "$filter"
