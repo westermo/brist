@@ -71,6 +71,21 @@ know when adding a new test case:
   - Similarly, the fallback VETH topology have names `vhN` and `vbN`
 
 
+Installation
+------------
+
+The test suite can be installed using `make install`, and by default
+`/usr/local` is used as prefix.  To override that:
+
+```sh
+$ make install prefix=/usr
+```
+
+The install creates a handy wrapper script in `$prefix/bin/brist`.
+
+> The `DESTDIR=` variable is also honored, for .deb and .rpm creators.
+
+
 Origin
 ------
 
