@@ -6,19 +6,22 @@ brist - BRIdge Self Test
 > element ... : a shortage of substances necessary to health, e.g.,
 > a vitamin C deficiency
 
-This project is an effort to create a standalone, easy to use, portable
-framework to test capabilities of the Linux bridge.  The most important
-aspect is *portable*, i.e., it should be possible to run on a full dist,
-but also on a limited embedded system.
+Brist is a standalone, easy to use, *portable* framework to verify
+capabilities of the Linux bridge.  Emphasis on *portable*.  I.e., it
+should be possible to run on a full-blown Linux distribution, but it
+must be possible to run on limited embedded systems, e.g [NetBox][].
 
-Dependencies, in order of importance:
+Dependencies:
 
   - dash, or BusyBox ash
-  - socat
+  - [socat][]
   - ping
-  - nemesis
+  - [nemesis][]
   - tcpdump
   - iproute2 tools (ip, bridge, ...)
+
+Additional dependencies for developing and running on a PC:
+
   - unshare
   - fakeroot
   - tshark
@@ -71,5 +74,9 @@ know when adding a new test case:
 Origin
 ------
 
-Invented, developed, and maintained by Westermo Network Technologies.
+Invented, developed, and maintained by Westermo Network Technologies.  
 Please use GitHub for issues and discussions.
+
+[nemesis]: https://github.com/libnet/nemesis/
+[NetBox]:  https://github.com/westermo/netbox/
+[socat]:   http://www.dest-unreach.org/socat/
