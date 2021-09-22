@@ -16,7 +16,7 @@ bindir   = $(prefix)/bin
 libdir   = $(prefix)/lib/$(NAME)
 docdir   = $(prefix)/share/doc/$(NAME)
 
-DOCS    := README.md LICENSE
+DOCS    := ChangeLog.md LICENSE README.md
 SCRIPTS := *.sh suite/*.sh
 
 all: check
