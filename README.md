@@ -14,27 +14,36 @@ but also on a limited embedded system.
 Dependencies, in order of importance:
 
   - dash, or BusyBox ash
-  - fakeroot
   - socat
   - ping
   - nemesis
   - tcpdump
-  - tshark
   - iproute2 tools (ip, bridge, ...)
   - unshare
+  - fakeroot
+  - tshark
   - make
 
-> Currently `tshark` is used from `make check` to capture traffic,
-> because `tcpdump` does not work properly inside an `unshare -rn`.
+> **Note:** currently `tshark` is used from `make check` to capture
+> traffic, because `tcpdump` does not work inside an `unshare -rn`.
+> This is also reason for `fakeroot`. On target only tcpdump is used.
 
 
 Running the Test Suite
 ----------------------
 
+From your PC, with the kernel you are currently running:
+
 ```sh
 $ git clone https://github.com/westermo/brist.git
 $ cd brist/
 $ make check
+```
+
+When installed on a target system, change to the install directory:
+
+```sh
+$ ./brist.sh
 ```
 
 
