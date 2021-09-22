@@ -74,6 +74,11 @@ multicast_check_gaps()
 
     require3loops
 
+    if ! command -v nemesis >/dev/null; then
+	step "nemesis required for IGMP Query injection, skipping."
+	skip
+    fi
+
     create_br $br0 "$bropts" $bports
     bridge link set dev $b1 mcast_flood off
     bridge link set dev $b2 mcast_flood off
