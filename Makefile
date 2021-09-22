@@ -34,9 +34,7 @@ install:
 	install -d $(DESTDIR)$(libdir)/suite
 	cat <<- EOF > $(DESTDIR)$(bindir)/$(NAME)
 		#!/bin/sh
-		cd $(libdir)
-		./brist.sh
-		cd -
+		(cd $(libdir) && ./brist.sh)
 	EOF
 	chmod 0755 $(DESTDIR)$(bindir)/$(NAME)
 	for file in $(DOCS); do						\
