@@ -120,6 +120,10 @@ multicast_basic_vlans()
     bridge link set dev $b2 mcast_flood off
     bridge link set dev $b3 mcast_flood off
 
+    # Activate proxy querier on VLAN 1, interval 12 sec, IGMPv3
+    bridge vlan global set vid 1 dev brist0 mcast_querier 1 \
+	   mcast_query_interval 1200 mcast_igmp_version 3
+
     bridge vlan add vid 2 dev $b2 pvid untagged
     bridge vlan del vid 1 dev $b2
 
@@ -128,10 +132,6 @@ multicast_basic_vlans()
     ip addr add 10.0.3.10/24 dev $h3
 
     capture -f "icmp or igmp" $h2 $h3
-
-    # Inject query on VLAN 1, not on receive port!, to allow fwd
-    # of multicast on this VLAN.  Current limitation of bridge.
-    mcast_query_start $h1
 
     # Only join stream on $h3
     mcast_join $h3
