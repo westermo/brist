@@ -17,6 +17,7 @@ Dependencies, in order of importance:
   - fakeroot
   - socat
   - ping
+  - nemesis
   - tcpdump
   - tshark
   - iproute2 tools (ip, bridge, ...)

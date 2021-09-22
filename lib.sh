@@ -96,6 +96,11 @@ ifaddr()
     ip -br link show dev "$1" | awk '{ print($3); }'
 }
 
+ipaddr()
+{
+    ip -br addr show dev "$1" | awk '{ split($3,a,"/"); print a[1]; }'
+}
+
 # Generate low-level Ethernet frames for basic layer-2 tests.
 # For layer-3 and upwards, use ping, nemesis or other tools.
 #
@@ -228,12 +233,87 @@ report()
     _kill_capture "${1}"
     $capread $opts -r "$t_work/${1}.pcap" 2>/dev/null
 }
-    if [ "$pid" ]; then
-	kill "$pid" 2>/dev/null && wait "$pid"
-	eval "unset ${1}_capture"
-    fi
 
-    $capread -A -r "$t_work/${1}.pcap" 2>/dev/null
+# Inject IGMP v2 query frames on interface $1
+mcast_query_start()
+{
+    nemesis igmp -d "$1" -p 0x11 -r 100 -c 100 -D 224.0.0.1 -i 10 &
+    eval "${1}_query=$!"
+}
+
+mcast_query_stop()
+{
+    pid=$(eval echo '$'"${1}_query")
+    if [ "$pid" ]; then
+	kill -1 "$pid" && wait "$pid"
+	eval "unset ${1}_query"
+    fi
+}
+
+# Joins group 225.1.2.3 on interface $1
+# NOTE: the interface must have an IPv4 address
+mcast_join()
+{
+    group=225.1.2.3
+    addr=$(ipaddr "$1")
+    [ -z "$addr" ] && die "Interface $1 has no address"
+
+    step "$1: joining $group from $addr"
+    socat UDP4-RECVFROM:6666,ip-add-membership=$group:$addr,fork EXEC:hostname &
+    eval "${1}_join=$!"
+}
+
+mcast_leave()
+{
+    pid=$(eval echo '$'"${1}_join")
+    if [ "$pid" ]; then
+	kill -1 "$pid" && wait "$pid"
+	eval "unset ${1}_join"
+    fi
+}
+
+# Blocking multicast generator, sends 3 ICMP messages on interface $1
+# to group 225.1.2.3 by default.  Override with -c NUM and -g GROUP.
+mcast_gen()
+{
+    group="225.1.2.3"
+    cnt=3
+
+    while getopts "c:g:" opt; do
+	case $opt in
+	    c)
+		cnt="$OPTARG"
+		;;
+	    g)
+		group="$OPTARG"
+		;;
+	    *)
+		exit 1
+		;;
+	esac
+    done
+    shift $((OPTIND - 1))
+
+    step "$h1: sending multicast to $group ($cnt sec) ..."
+    ping -qc "$cnt" -W 1 -I "$1" "$group" >/dev/null
+}
+
+# Find gaps in ICMP multicast streams
+mcast_analyze_gaps()
+{
+    step "$h1: analyzing, should be uninterrupted from first to last packet ..."
+
+    _kill_capture "${1}"
+    $capread -nr "$t_work/${1}.pcap" icmp 2>/dev/null >"$t_work/${1}.text"
+
+    # Find first and last ICMP sequence number (works with tshark & tcpdump)
+    sed 's/.*seq \([0-9]*\),.*/\1/g' <"$t_work/${1}.text" >"$t_work/${1}.seqnos"
+    #first=1
+    first=$(head -1 "$t_work/${1}.seqnos")
+    last=$(tail -1 "$t_work/${1}.seqnos")
+
+    seq "$first" "$last" >"$t_work/${1}.seq"
+    cmp "$t_work/${1}.seq" "$t_work/${1}.seqnos" || fail
 }
 
 inject()
