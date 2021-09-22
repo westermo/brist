@@ -38,10 +38,17 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
+      - name: Install dependencies
+        run: |
+          echo "deb [arch=amd64] https://deb.troglobit.com/debian stable main" \
+          	| sudo tee /etc/apt/sources.list.d/troglobit.list
+          curl -sS https://deb.troglobit.com/pubkey.gpg | sudo apt-key add -
+          sudo apt-get -y update
+          sudo apt-get -y install nemesis socat tshark
       - uses: actions/checkout@v2
       - name: Build release ...
         run: |
-          make release
+          make release || (cat test/test-suite.log; false)
           mkdir -p artifacts/
           mv *.tar.* artifacts/
       - name: Upload release artifacts ...
