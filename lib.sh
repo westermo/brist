@@ -179,7 +179,7 @@ _capture()
     eval "${1}_capture=$!"
 
     #shellcheck disable=SC2034
-    for i in $(seq 5); do
+    for i in $(seq 50); do
 	[ -f "$pcap" ] && return 0
 	sleep 0.1
     done
