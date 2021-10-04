@@ -32,11 +32,11 @@ install:
 	install -d $(DESTDIR)$(docdir)
 	install -d $(DESTDIR)$(libdir)
 	install -d $(DESTDIR)$(libdir)/suite
-	cat <<- EOF > $(DESTDIR)$(bindir)/$(NAME)
+	cat <<- EOF > $(DESTDIR)$(bindir)/check-bridge
 		#!/bin/sh
 		(cd $(libdir) && ./brist.sh)
 	EOF
-	chmod 0755 $(DESTDIR)$(bindir)/$(NAME)
+	chmod 0755 $(DESTDIR)$(bindir)/check-bridge
 	for file in $(DOCS); do						\
 		install -m 0644 $$file $(DESTDIR)$(docdir)/$$file;	\
 	done
@@ -46,7 +46,7 @@ install:
 	chmod +x $(DESTDIR)$(libdir)/brist.sh
 
 uninstall:
-	-$(RM)    $(DESTDIR)$(bindir)/$(NAME)
+	-$(RM)    $(DESTDIR)$(bindir)/check-bridge
 	-$(RM) -r $(DESTDIR)$(docdir)
 	-$(RM) -r $(DESTDIR)$(libdir)
 
