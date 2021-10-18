@@ -45,9 +45,9 @@ mkdir -p "$work" || die "unable to create $work"
 br0=${br0:-brist0}
 br1=${br1:-brist1}
 
-ports="$h1 $b1 $h2 $b2 $h3 $b3 $h4 $b5"
 bports="$b1 $b2 $b3 $b4"
 hports="$h1 $h2 $h3 $h4"
+ports="$bports $hports"
 
 for suite in "$root"/suite/*.sh; do
     . "$suite"
