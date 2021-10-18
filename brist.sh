@@ -29,6 +29,8 @@ origo()
     ip link del dev "$br1" type bridge >/dev/null 2>&1
 
     for port in $ports; do
+	ip addr flush dev "$port"
+	ip route flush dev "$port"
 	ip link set dev "$port" nomaster
 	ip link set dev "$port" up
     done
