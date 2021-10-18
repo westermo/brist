@@ -34,7 +34,8 @@ install:
 	install -d $(DESTDIR)$(libdir)/suite
 	cat <<- EOF > $(DESTDIR)$(bindir)/check-bridge
 		#!/bin/sh
-		(cd $(libdir) && ./brist.sh)
+		cd $(libdir)
+		exec ./brist.sh
 	EOF
 	chmod 0755 $(DESTDIR)$(bindir)/check-bridge
 	for file in $(DOCS); do						\

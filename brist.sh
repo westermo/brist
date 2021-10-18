@@ -122,3 +122,5 @@ else
     printf "  FAIL:  0\n"                       | tee -a "$results"
 fi
 printf "============================================================================\n" | tee -a "$results"
+
+[ $sum_fail -eq 0 ] || exit 1
