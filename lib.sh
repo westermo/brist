@@ -41,6 +41,8 @@ step()
 {
     t_step="$*"
     printf "\e[1m%s:\e[0m %s\n" "$t_current" "$t_step"
+
+    [ -n "$single_step" ] && read -p "Single-stepping, press enter to continue"
 }
 
 depcheck()
