@@ -25,15 +25,17 @@ waitlink()
 
 origo()
 {
-    ip link del dev "$br0" type bridge >/dev/null 2>&1
-    ip link del dev "$br1" type bridge >/dev/null 2>&1
+    {
+	ip link del dev "$br0" type bridge
+	ip link del dev "$br1" type bridge
 
-    for port in $ports; do
-	ip addr flush dev "$port"
-	ip route flush dev "$port"
-	ip link set dev "$port" nomaster
-	ip link set dev "$port" up
-    done
+	for port in $ports; do
+	    ip addr flush dev "$port"
+	    ip route flush dev "$port"
+	    ip link set dev "$port" nomaster
+	    ip link set dev "$port" up
+	done
+    } >/dev/null 2>&1
 
     for port in $ports; do
 	waitlink "$port" || die "No link on $port"
