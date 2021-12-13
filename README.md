@@ -57,6 +57,38 @@ Running a Single Test
 $ make check BRIST_TEST=basic_stp_vlan
 ```
 
+Running Tests on Hardware
+----------------------------
+Set up loops between the physical ports. Make sure that there is no
+storm when starting Brist. This can be done by removing a port from
+the bridge with `ip link set dev ethX nomaster` on one end of the loop.
+
+Map the variables to the physical ports by creating a file called
+`.brist-setup.sh` in either your home directory,
+`~/.brist-setup.sh`, or in /etc, `/etc/.brist-setup.sh.`
+
+The file should look something like this:
+```sh
+conf_capture_delay=1
+conf_inject_delay=1
+loops="1 2 3" # 3 loops
+b1=eth4 # Maps $b1 to physical port eth4
+h1=eth5
+b2=eth6
+h2=eth7
+b3=eth8
+h3=eth9
+br0=br0
+echo loop1 $b1 "<->" $h1
+echo loop2 $b2 "<->" $h2
+echo loop3 $b3 "<->" $h3
+```
+If a bridge is not specified Brist will attempt to create one.
+This may cause problems if your hardware only supports a single
+bridge, if that bridge already exists.
+
+Now you can run `make check`. If you see the `echo`'s from the setup
+file you know it is running on the hardware.
 
 Adding a Test
 -------------
