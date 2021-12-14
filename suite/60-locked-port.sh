@@ -16,7 +16,7 @@ basic_locked_port()
 	step "Verify packet on $h2"
 	report $h2 | grep -q "message from $h1" || fail
 
-	step "Lock port on $b1 and start capture on $h2"
+	step "Lock port on $b1"
 	bridge fdb del `ifaddr $h1` dev $b1 master
 	bridge link set dev $b1 locked on
 
@@ -176,3 +176,40 @@ locked_port_vlan()
         pass
 }
 alltests="$alltests locked_port_vlan"
+
+locked_port_spoofing()
+{
+	require3loops
+
+	create_br $br0 "vlan_default_pvid 0" $bports
+
+        step "Start capture and inject packet to $h3 from host $h1"
+        capture $h3
+        eth -I $h3 -i $h1 | { cat; echo message from $h1; } | inject $h1
+
+        step "Verify packet on $h3"
+        report $h3 | grep -q "message from $h1" || fail
+
+        step "Lock ports on $b1 and $b2 and open for host $h1 on port $b1"
+	bridge fdb del `ifaddr $h1` dev $b2 master
+        bridge fdb add `ifaddr $h1` dev $b1 master static
+        bridge link set dev $b1 locked on
+	bridge link set dev $b2 locked on
+
+        step "Start capture and inject packet to $h3 from host $h1"
+        capture $h3
+        eth -I $h3 -i $h1 | { cat; echo message from $h1; } | inject $h1
+
+        step "Verify packet on $h3"
+        report $h3 | grep -q "message from $h1" || fail
+
+	step "Start capture and inject packet to $h3 from host $h2 spoofing as $h1"
+	capture $h3
+	eth -I $h3 -i $h1 | { cat; echo message from spoofer; } | inject $h2
+
+	step "Verify that package from spoofer does not pass through"
+	report $h3 | grep -q "message from spoofer" && fail
+
+	pass
+}
+alltests="$alltests locked_port_spoofing"
