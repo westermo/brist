@@ -111,7 +111,7 @@ ipaddr()
 #   d: local dest addr from arg
 #   g: global dest addr from arg (multicast)
 #   i: source addr from interface arg
-#   i: dest addr from interface arg
+#   I: dest addr from interface arg
 #   q: 802.1Q VLAN tag with VID arg
 #   s: local source addr from arg
 #   t: ether type/len from arg
