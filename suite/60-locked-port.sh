@@ -1,3 +1,5 @@
+# No vlan filtering, verify that the port behaves accordingly with auth'ed and
+# non-auth'ed host behind. Verify unlocking of port.
 basic_locked_port()
 {
     require2loops
@@ -84,6 +86,8 @@ basic_locked_port()
 }
 alltests="$alltests basic_locked_port"
 
+# vlan filtering enabled, verify that the port behaves accordingly with auth'ed and
+# non-auth'ed host behind. Verify unlocking of port.
 locked_port_vlan()
 {
     vlan="2050"
@@ -177,6 +181,8 @@ locked_port_vlan()
 }
 alltests="$alltests locked_port_vlan"
 
+# Two hosts behind two locked ports, where the one host is auth'ed, check that
+# the other host cannot get access by spoofing.
 locked_port_spoofing()
 {
     require3loops
