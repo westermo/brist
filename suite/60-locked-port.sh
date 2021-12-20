@@ -97,6 +97,11 @@ locked_port_vlan()
 
     create_br $br0 "$bropts" $bports
 
+    if ! bridge -d vlan show | grep -q "state forwarding"; then
+        step "Locked port VLAN not supported, skipping."
+        skip
+    fi
+
     step "Add vlans to bridge ports"
     bridge vlan add vid "$vlan" dev $b1 tagged
     bridge vlan add vid "$vlan" dev $b2 tagged
