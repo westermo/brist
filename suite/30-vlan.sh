@@ -1,5 +1,21 @@
 # shellcheck disable=SC2154 disable=SC2046 disable=SC2086
 
+vlan_setup()
+{
+    step "Setup VLANs"
+
+    create_br $br0 "vlan_filtering 1 vlan_default_pvid 0" $bports
+
+    bridge vlan add dev $b1 vid 1 pvid
+    bridge vlan add dev $b1 vid 2
+
+    bridge vlan add dev $b2 vid 1 pvid untagged
+    bridge vlan add dev $b3 vid 2 pvid untagged
+
+    bridge vlan add dev $br0 vid 1 self
+    bridge vlan add dev $br0 vid 2 self
+}
+
 vlan_transparency()
 {
     require3loops
@@ -27,17 +43,7 @@ vlan_filtering()
 {
     require3loops
 
-    create_br $br0 "vlan_filtering 1 vlan_default_pvid 0" $bports
-
-    step "Setup VLANs"
-    bridge vlan add dev $b1 vid 1 pvid
-    bridge vlan add dev $b1 vid 2
-
-    bridge vlan add dev $b2 vid 1 pvid untagged
-    bridge vlan add dev $b3 vid 2 pvid untagged
-
-    bridge vlan add dev $br0 vid 1 self
-    bridge vlan add dev $br0 vid 2 self
+    vlan_setup
 
     step "Inject traffic on filtering bridge"
     capture $h2 $h3 $br0
