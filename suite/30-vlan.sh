@@ -51,20 +51,20 @@ vlan_filtering()
     eth -b -i $h1 -q 1 | { cat; echo vlan 1 tagged from $h1; } | inject $h1
     eth -b -i $h1 -q 2 | { cat; echo vlan 2 tagged from $h1; } | inject $h1
 
-    step "Verify that all $h2 only sees 1st and 2nd flow"
+    step "Verify that $br0 sees all flows"
+    report $br0 | grep -q "untagged from $h1" || fail
+    report $br0 | grep -q "vlan 1 tagged from $h1" || fail
+    report $br0 | grep -q "vlan 2 tagged from $h1" || fail
+
+    step "Verify that $h2 only sees 1st and 2nd flow"
     report $h2 | grep -q "untagged from $h1" || fail
     report $h2 | grep -q "vlan 1 tagged from $h1" || fail
     report $h2 | grep -q "vlan 2 tagged from $h1" && fail
 
-    step "Verify that all $h3 only sees 3rd flow"
+    step "Verify that $h3 only sees 3rd flow"
     report $h3 | grep -q "untagged from $h1" && fail
     report $h3 | grep -q "vlan 1 tagged from $h1" && fail
     report $h3 | grep -q "vlan 2 tagged from $h1" || fail
-
-    step "Verify that all $br0 sees all flows"
-    report $br0 | grep -q "untagged from $h1" || fail
-    report $br0 | grep -q "vlan 1 tagged from $h1" || fail
-    report $br0 | grep -q "vlan 2 tagged from $h1" || fail
 
     pass
 }
