@@ -4,7 +4,7 @@
 root=$(dirname "$(readlink -f "$0")")
 work=/tmp/brist-$(date +%F-%T | tr ' :' '--')
 
-[ -f /etc/.brist-setup.sh ] && setup=/etc/.brist-setup.sh
+[ -f /etc/brist-setup.sh ] && setup=/etc/brist-setup.sh
 [ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
 [ ! "$setup" ] && setup=${root}/veth-setup.sh
 
