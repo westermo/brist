@@ -69,3 +69,35 @@ vlan_filtering()
     pass
 }
 alltests="$alltests vlan_filtering"
+
+vlan_ivl()
+{
+    require3loops
+
+    vlan_setup
+
+    step "Inject learning frames on $h2 and $h3"
+    eth -b -s 1 | { cat; echo from $h2; } | inject $h2
+    eth -b -s 1 | { cat; echo from $h3; } | inject $h3
+
+    capture $br0 $h2 $h3
+
+    step "Inject return traffic in both VLANs"
+    eth -d 1 -i $h1 -q 1 | { cat; echo vlan 1 tagged from $h1; } | inject $h1
+    eth -d 1 -i $h1 -q 2 | { cat; echo vlan 2 tagged from $h1; } | inject $h1
+
+    step "Verify that neither flow reaches $br0"
+    report $br0 | grep -q "vlan 1 tagged from $h1" && fail
+    report $br0 | grep -q "vlan 2 tagged from $h1" && fail
+
+    step "Verify that $h2 only sees VLAN 1 flow"
+    report $h2 | grep -q "vlan 1 tagged from $h1" || fail
+    report $h2 | grep -q "vlan 2 tagged from $h1" && fail
+
+    step "Verify that $h3 only sees VLAN 2 flow"
+    report $h3 | grep -q "vlan 1 tagged from $h1" && fail
+    report $h3 | grep -q "vlan 2 tagged from $h1" || fail
+
+    pass
+}
+alltests="$alltests vlan_ivl"
