@@ -92,6 +92,37 @@ basic_learning_port()
 }
 alltests="$alltests basic_learning_port"
 
+basic_learning_station_move()
+{
+    require3loops
+
+    create_br $br0 "" $bports
+
+    step "Inject learning frame on $h2"
+    eth -b -s 1 | { cat; echo from $h2; } | inject $h2
+
+    step "Inject learning frame using same SA on $h3, moving the station"
+    eth -b -s 1 | { cat; echo from $h3; } | inject $h3
+
+    capture $br0 $(cdr $hports)
+
+    step "Inject return traffic towards $h3 from $h1"
+    eth -d 1 -i $h1 | { cat; echo reply from $h1; } | inject $h1
+
+    for y in $br0 $(cdr $hports); do
+	if [ "$y" = "$h3" ]; then
+	    step "Verify reply on $y"
+	    report $y | grep -q "reply from $h1" || fail
+	else
+	    step "Verify absence of reply on $y"
+	    report $y | grep -q "reply from $h1" && fail
+	fi
+    done
+
+    pass
+}
+alltests="$alltests basic_learning_station_move"
+
 basic_flags_flooding()
 {
 		require3loops
