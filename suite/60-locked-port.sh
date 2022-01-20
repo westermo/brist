@@ -6,6 +6,12 @@ basic_locked_port()
 
     create_br $br0 "vlan_default_pvid 0" $bports
 
+    if ! bridge -d link show | grep -q " locked"; then
+        step "Locked port feature not supported, skipping."
+        skip
+    fi
+
+
     step "Inject learning frame on $br0 and start capture"
     eth -b -i $br0 | { cat; echo from $br0; } | inject $br0
 
@@ -97,8 +103,13 @@ locked_port_vlan()
 
     create_br $br0 "$bropts" $bports
 
+    if ! bridge -d link show | grep -q " locked"; then
+        step "Locked port feature not supported, skipping."
+        skip
+    fi
+
     if ! bridge -d vlan show | grep -q "state forwarding"; then
-        step "Locked port VLAN not supported, skipping."
+        step "VLAN not supported, skipping."
         skip
     fi
 
@@ -193,6 +204,11 @@ locked_port_spoofing()
     require3loops
 
     create_br $br0 "vlan_default_pvid 0" $bports
+
+    if ! bridge -d link show | grep -q " locked"; then
+        step "Locked port feature not supported, skipping."
+        skip
+    fi
 
     step "Start capture and inject packet to $h3 from host $h1"
     capture $h3
