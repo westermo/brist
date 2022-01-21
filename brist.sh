@@ -38,12 +38,13 @@ origo()
 
 V=0
 work=/tmp/brist-$(date +%F-%T | tr ' :' '--')
+filter=cat
 
 [ -f /etc/brist-setup.sh ] && setup=/etc/brist-setup.sh
 [ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
 [ ! "$setup" ] && setup=${root}/veth-setup.sh
 
-while getopts "f:rR:v" opt; do
+while getopts "f:rR:t:T:v" opt; do
     case ${opt} in
 	f)
 	    setup=$(readlink -f $OPTARG)
@@ -54,6 +55,13 @@ while getopts "f:rR:v" opt; do
 	R)
 	    randomize=yes
 	    shufdata=$OPTARG
+	    ;;
+	t)
+	    filter="grep -E"
+	    filterarg="$OPTARG"
+	    ;;
+	T)
+	    filter="$OPTARG"
 	    ;;
 	v)
 	    V=$(($V + 1))
@@ -91,10 +99,10 @@ for suite in "$root"/suite/*.sh; do
 done
 
 results="$work/test-results.txt"
-if [ -z "$BRIST_TEST" ]; then
+if [ "$filter" = "cat" ]; then
     printf "\e[7mbrist: running suite, log at %s\e[0m\n" "$results"    | tee $results
 else
-    printf "\e[7mbrist: %s, log at %s\e[0m\n" "$BRIST_TEST" "$results" | tee $results
+    printf "\e[7mbrist: %s, log at %s\e[0m\n" "$filter" "$results" | tee $results
 fi
 
 printtopology
@@ -104,7 +112,7 @@ sum_skip=0
 sum_fail=0
 sum_total=0
 
-for t in $(echo "$alltests" | tr ' ' '\n' | grep -E "$BRIST_TEST"); do
+for t in $(echo "$alltests" | tr ' ' '\n' | $filter $filterarg); do
     t_work=$work/$t
     t_outp=$t_work/output
     t_current=$t
