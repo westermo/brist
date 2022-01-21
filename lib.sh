@@ -163,7 +163,7 @@ eth()
 
 _kill_capture()
 {
-    pid=$(eval echo '$'"${1}_capture")
+    local pid=$(eval echo '$'"${1}_capture")
     if [ -n "$pid" ]; then
 	kill -1 "$pid" && wait "$pid"
 	eval "unset ${1}_capture"
@@ -172,8 +172,8 @@ _kill_capture()
 
 _capture()
 {
-    pcap="$t_work"/${1}.pcap
-    filter=${2}
+    local pcap="${t_work}/${1}.pcap"
+    local filter="${2}"
 
     rm -f "$pcap"
     # Note: arguments must be compatible with tshark as well!
@@ -191,7 +191,7 @@ _capture()
 
 capture()
 {
-    filter="ether proto 0xbbbb"
+    local filter="ether proto 0xbbbb"
 
     while getopts "f:" opt; do
 	case $opt in
@@ -245,7 +245,7 @@ mcast_query_start()
 
 mcast_query_stop()
 {
-    pid=$(eval echo '$'"${1}_query")
+    local pid=$(eval echo '$'"${1}_query")
     if [ "$pid" ]; then
 	kill -1 "$pid" && wait "$pid"
 	eval "unset ${1}_query"
@@ -256,8 +256,8 @@ mcast_query_stop()
 # NOTE: the interface must have an IPv4 address
 mcast_join()
 {
-    group=225.1.2.3
-    addr=$(ipaddr "$1")
+    local group=225.1.2.3
+    local addr=$(ipaddr "$1")
     [ -z "$addr" ] && die "Interface $1 has no address"
 
     step "$1: joining $group from $addr"
@@ -267,7 +267,7 @@ mcast_join()
 
 mcast_leave()
 {
-    pid=$(eval echo '$'"${1}_join")
+    local pid=$(eval echo '$'"${1}_join")
     if [ "$pid" ]; then
 	kill -1 "$pid" && wait "$pid"
 	eval "unset ${1}_join"
@@ -278,8 +278,8 @@ mcast_leave()
 # to group 225.1.2.3 by default.  Override with -c NUM and -g GROUP.
 mcast_gen()
 {
-    group="225.1.2.3"
-    cnt=3
+    local group="225.1.2.3"
+    local cnt=3
 
     while getopts "c:g:" opt; do
 	case $opt in
@@ -311,8 +311,8 @@ mcast_analyze_gaps()
     # Find first and last ICMP sequence number (works with tshark & tcpdump)
     sed 's/.*seq \([0-9]*\),.*/\1/g' <"$t_work/${1}.text" >"$t_work/${1}.seqnos"
     #first=1
-    first=$(head -1 "$t_work/${1}.seqnos")
-    last=$(tail -1 "$t_work/${1}.seqnos")
+    local first=$(head -1 "$t_work/${1}.seqnos")
+    local last=$(tail -1 "$t_work/${1}.seqnos")
 
     seq "$first" "$last" >"$t_work/${1}.seq"
     cmp "$t_work/${1}.seq" "$t_work/${1}.seqnos" || fail
@@ -331,8 +331,8 @@ inject()
 
 create_br()
 {
-    br=$1
-    opts=$2
+    local br="$1"
+    local opts="$2"
     shift 2
 
     # shellcheck disable=SC2086
