@@ -42,8 +42,11 @@ work=/tmp/brist-$(date +%F-%T | tr ' :' '--')
 [ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
 [ ! "$setup" ] && setup=${root}/veth-setup.sh
 
-while getopts "rR:" opt; do
+while getopts "f:rR:" opt; do
     case ${opt} in
+	f)
+	    setup=$(readlink -f $OPTARG)
+	    ;;
 	r)
 	    randomize=yes
 	    ;;
