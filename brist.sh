@@ -2,12 +2,6 @@
 # shellcheck disable=SC2154 disable=SC2034 disable=SC1090
 
 root=$(dirname "$(readlink -f "$0")")
-work=/tmp/brist-$(date +%F-%T | tr ' :' '--')
-
-[ -f /etc/brist-setup.sh ] && setup=/etc/brist-setup.sh
-[ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
-[ ! "$setup" ] && setup=${root}/veth-setup.sh
-
 . "$root"/lib.sh
 
 waitlink()
@@ -42,10 +36,42 @@ origo()
     done
 }
 
+work=/tmp/brist-$(date +%F-%T | tr ' :' '--')
+
+[ -f /etc/brist-setup.sh ] && setup=/etc/brist-setup.sh
+[ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
+[ ! "$setup" ] && setup=${root}/veth-setup.sh
+
+while getopts "rR:" opt; do
+    case ${opt} in
+	r)
+	    randomize=yes
+	    ;;
+	R)
+	    randomize=yes
+	    shufdata=$OPTARG
+	    ;;
+	*)
+	    exit 1
+	    ;;
+    esac
+done
+
 mkdir -p "$work" || die "unable to create $work"
 
 [ -f "$setup" ] || die "Missing setup $setup"
 . "$setup"
+
+if [ $randomize ]; then
+    if [ -f "$shufdata" ]; then
+	cp $shufdata $work/shufdata
+    else
+	genshuf
+    fi
+
+    setshuf
+fi
+
 br0=${br0:-brist0}
 br1=${br1:-brist1}
 

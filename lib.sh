@@ -37,6 +37,44 @@ alias require4loops='{ \
       fi \
 }'
 
+genshuf()
+{
+    local loop
+
+    : >$work/shufdata
+
+    for loop in $(shuf -e $loops); do
+	echo $loop $(shuf -en1 0 1) >>$work/shufdata
+    done
+}
+
+setshuf()
+{
+    local to
+    local from
+    local invert
+
+    set $(cat $work/shufdata)
+    for to in $loops; do
+	from=$1;
+	invert=$2
+	shift 2
+
+	if [ $invert -eq 0 ]; then
+	    eval 'sb'$to'=$b'$from
+	    eval 'sh'$to'=$h'$from
+	else
+	    eval 'sb'$to'=$h'$from
+	    eval 'sh'$to'=$b'$from
+	fi
+    done
+
+    for to in $(shuf -e $loops); do
+	eval 'b'$to'=$sb'$to
+	eval 'h'$to'=$sh'$to
+    done
+}
+
 step()
 {
     t_step="$*"
