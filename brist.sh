@@ -36,13 +36,14 @@ origo()
     done
 }
 
+V=0
 work=/tmp/brist-$(date +%F-%T | tr ' :' '--')
 
 [ -f /etc/brist-setup.sh ] && setup=/etc/brist-setup.sh
 [ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
 [ ! "$setup" ] && setup=${root}/veth-setup.sh
 
-while getopts "f:rR:" opt; do
+while getopts "f:rR:v" opt; do
     case ${opt} in
 	f)
 	    setup=$(readlink -f $OPTARG)
@@ -53,6 +54,9 @@ while getopts "f:rR:" opt; do
 	R)
 	    randomize=yes
 	    shufdata=$OPTARG
+	    ;;
+	v)
+	    V=$(($V + 1))
 	    ;;
 	*)
 	    exit 1
@@ -108,8 +112,8 @@ for t in $(echo "$alltests" | tr ' ' '\n' | grep -E "$BRIST_TEST"); do
     mkdir -p "$t_work"
     origo
 
-    # silent output by default, unless running a single test
-    if [ -z "$BRIST_TEST" ]; then
+    # Only print individual test messages to stdout in verbose mode.
+    if [ $V -eq 0 ]; then
 	printf "\e[1m%s:\e[0m started at %s\n" "$t" "$(date)" > "$t_outp"
 	$t >> "$t_outp" 2>&1 || { step explicit return; t_status=2; }
     else
