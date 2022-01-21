@@ -22,13 +22,13 @@ multi_learning_port()
 
     for y in $capifs; do
 	case $y in
-	    ${br0}|${br1}|${h1})
-		step "Verify absence of reply on $y"
-		report $y | grep -q "reply from $h3" && fail
-		;;
-	    *)
+	    ${h2}|${h3})
 		step "Verify reply on $y"
 		report $y | grep -q "reply from $h3" || fail
+		;;
+	    *)
+		step "Verify absence of reply on $y"
+		report $y | grep -q "reply from $h3" && fail
 		;;
 	esac
     done
