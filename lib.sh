@@ -75,6 +75,24 @@ setshuf()
     done
 }
 
+printtopology()
+{
+    [ $V -gt 0 ] || return
+
+    local l="$loops"
+    local bp="$bports"
+    local hp="$hports"
+
+    while [ $(car $l) ]; do
+	printf "(b%u) %s <--> %s (h%u)\n" \
+	       $(car $l) $(car $bp) $(car $hp) $(car $l)
+
+	l="$(cdr $l)"
+	bp="$(cdr $bp)"
+	hp="$(cdr $hp)"
+    done
+}
+
 step()
 {
     t_step="$*"

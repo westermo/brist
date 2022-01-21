@@ -97,6 +97,8 @@ else
     printf "\e[7mbrist: %s, log at %s\e[0m\n" "$BRIST_TEST" "$results" | tee $results
 fi
 
+printtopology
+
 sum_pass=0
 sum_skip=0
 sum_fail=0
