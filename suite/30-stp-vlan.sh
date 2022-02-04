@@ -7,14 +7,14 @@ basic_stp_vlan()
 {
     require3loops
 
-    create_br $br0 "vlan_filtering 1" $bports
+    create_br $br0 "vlan_default_pvid 0 vlan_filtering 1" $bports
     if ! bridge -d vlan show | grep -q "state forwarding"; then
         step "STP per VLAN not supported, skipping."
         skip
     fi
 
+    bridge vlan add vid 1 dev $b1 pvid untagged
     bridge vlan add vid 2 dev $b2 pvid untagged
-    bridge vlan del vid 1 dev $b2
 
     bridge vlan add vid 2 dev $b3
     bridge vlan add vid 1 dev $b3
@@ -45,4 +45,4 @@ basic_stp_vlan()
 
     pass
 }
-alltests="$alltests basic_stp_vlan"
+experimentaltests="$experimentaltests basic_stp_vlan"
