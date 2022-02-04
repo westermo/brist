@@ -44,7 +44,7 @@ filter=cat
 [ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
 [ ! "$setup" ] && setup=${root}/veth-setup.sh
 
-while getopts "f:rR:t:T:v" opt; do
+while getopts "f:rR:t:T:vX" opt; do
     case ${opt} in
 	f)
 	    setup=$(readlink -f $OPTARG)
@@ -65,6 +65,9 @@ while getopts "f:rR:t:T:v" opt; do
 	    ;;
 	v)
 	    V=$(($V + 1))
+	    ;;
+	X)
+	    experimental=yes
 	    ;;
 	*)
 	    exit 1
@@ -97,6 +100,10 @@ ports="$bports $hports"
 for suite in "$root"/suite/*.sh; do
     . "$suite"
 done
+
+if [ $experimental ]; then
+    alltests="$alltests $experimentaltests"
+fi
 
 results="$work/test-results.txt"
 if [ "$filter" = "cat" ]; then
