@@ -221,7 +221,7 @@ _kill_capture()
 {
     local pid=$(eval echo '$'"${1}_capture")
     if [ -n "$pid" ]; then
-	kill -1 "$pid" && wait "$pid"
+	kill -1 "$pid" 2>/dev/null && wait "$pid"
 	eval "unset ${1}_capture"
     fi
 }
