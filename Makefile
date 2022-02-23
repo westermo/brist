@@ -35,7 +35,7 @@ install:
 	cat <<- EOF > $(DESTDIR)$(bindir)/check-bridge
 		#!/bin/sh
 		cd $(libdir)
-		exec ./brist.sh
+		exec ./brist.sh "\$$@"
 	EOF
 	chmod 0755 $(DESTDIR)$(bindir)/check-bridge
 	for file in $(DOCS); do						\
