@@ -11,11 +11,7 @@ basic_locked_port()
         skip
     fi
 
-
-    step "Inject learning frame on $br0 and start capture"
-    eth -b -i $br0 | { cat; echo from $br0; } | inject $br0
-
-    sleep 1
+    bridge link set dev $b1 learning off
 
     step "Start capture and inject packet to $h2 from host $h1"
     capture $h2
@@ -112,6 +108,8 @@ locked_port_vlan()
         step "VLAN not supported, skipping."
         skip
     fi
+
+    bridge link set dev $b1 learning off
 
     step "Add vlans to bridge ports"
     bridge vlan add vid "$vlan" dev $b1 tagged
@@ -210,6 +208,9 @@ locked_port_spoofing()
         skip
     fi
 
+    bridge link set dev $b1 learning off
+    bridge link set dev $b2 learning off
+
     step "Start capture and inject packet to $h3 from host $h1"
     capture $h3
     eth -I $h3 -i $h1 | { cat; echo message from $h1; } | inject $h1
@@ -218,7 +219,6 @@ locked_port_spoofing()
     report $h3 | grep -q "message from $h1" || fail
 
     step "Lock ports on $b1 and $b2 and open for host $h1 on port $b1"
-    bridge fdb del `ifaddr $h1` dev $b2 master
     bridge fdb add `ifaddr $h1` dev $b1 master static
     bridge link set dev $b1 locked on
     bridge link set dev $b2 locked on
