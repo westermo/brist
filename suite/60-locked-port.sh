@@ -21,7 +21,6 @@ basic_locked_port()
     report $h2 | grep -q "message from $h1" || fail
 
     step "Lock port on $b1"
-    bridge fdb del `ifaddr $h1` dev $b1 master
     bridge link set dev $b1 locked on
 
     sleep 1
@@ -43,6 +42,9 @@ basic_locked_port()
     report $h2 | grep -q "packet from nonauth host" && fail
 
     step "Add '8021X authenticated' host MAC to the bridge FDB"
+    if bridge fdb show | grep `ifaddr $h1` | grep -q "locked"; then
+        bridge fdb del `ifaddr $h1` dev $b1 master
+    fi
     bridge fdb add `ifaddr $h1` dev $b1 master static
 
     sleep 1
@@ -128,7 +130,6 @@ locked_port_vlan()
     report $h2 | grep -q "message from $h1" || fail
 
     step "Lock port on $b1"
-    bridge fdb del `ifaddr $h1` dev $b1 vlan "$vlan" master
     bridge link set dev $b1 locked on
 
     sleep 1
@@ -150,6 +151,9 @@ locked_port_vlan()
     report $h2 | grep -q "packet from nonauth host" && fail
 
     step "Add '8021X authenticated' host MAC to the bridge FDB and start capture"
+    if bridge fdb show | grep `ifaddr $h1` | grep -q "locked"; then
+        bridge fdb del `ifaddr $h1` dev $b1 master
+    fi
     bridge fdb add `ifaddr $h1` dev $b1 master static
 
     sleep 1
@@ -240,3 +244,55 @@ locked_port_spoofing()
     pass
 }
 alltests="$alltests locked_port_spoofing"
+
+# One host behind a locked port with learing on, verify that a locked fdb entry
+# appears when sending, and check that messages pass through when replacing the
+# locked fdb entry with a plain one.
+locked_port_mac_auth()
+{
+    require2loops
+
+    create_br $br0 "vlan_default_pvid 1" $bports
+
+    if ! bridge -d link show | grep -q " locked"; then
+	step "Locked port feature not supported, skipping."
+	skip
+    fi
+
+    step "Lock port on $b1"
+    bridge link set dev $b1 locked on
+    bridge link set dev $b1 learning on
+
+    step "Start capture and inject packet to $h2 from $h1"
+    capture $h2
+    eth -I $h2 -i $h1 | { cat; echo message from $h1; } | inject $h1
+
+    step "Verify that packet does not arrive."
+    report $h2 | grep -q "message from $h1" && fail
+
+    step "Verify that fdb entry with locked flag appears."
+    if ! bridge fdb show | grep `ifaddr $h1` | grep -q "locked"; then
+	fail
+    fi
+
+    step "Start capture and inject packet to $h2 from $h1"
+    capture $h2
+    eth -I $h2 -i $h1 | { cat; echo 2nd message from $h1; } | inject $h1
+
+    step "Verify that packet does not arrive."
+    report $h2 | grep -q "2nd message from $h1" && fail
+
+    step "Replace locked flag fdb entry with plain fdb entry"
+    bridge fdb del `ifaddr $h1` dev $b1 master
+    bridge fdb add `ifaddr $h1` dev $b1 master static
+
+    step "Start capture and inject packet to $h2 from $h1"
+    capture $h2
+    eth -I $h2 -i $h1 | { cat; echo 3rd message from $h1; } | inject $h1
+
+    step "Verify that packet arrives."
+    report $h2 | grep -q "3rd message from $h1" || fail
+
+    pass
+}
+alltests="$alltests locked_port_mac_auth"
