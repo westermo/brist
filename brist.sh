@@ -109,7 +109,7 @@ results="$work/test-results.txt"
 if [ "$filter" = "cat" ]; then
     printf "\e[7mbrist: running suite, log at %s\e[0m\n" "$results"    | tee $results
 else
-    printf "\e[7mbrist: %s, log at %s\e[0m\n" "$filter" "$results" | tee $results
+    printf "\e[7mbrist: %s %s, log at %s\e[0m\n" "$filter" "$filterarg" "$results" | tee $results
 fi
 
 printtopology
