@@ -12,6 +12,11 @@ die()
     exit 1
 }
 
+warn()
+{
+    echo "warn: $*" >&2
+}
+
 alias fail='{ t_status=2; return 0; }'
 alias skip='{ t_status=1; return 0; }'
 alias pass='{ t_status=0; return 0; }'
