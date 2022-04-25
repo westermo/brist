@@ -101,6 +101,10 @@ done
 
 mkdir -p "$work" || die "unable to create $work"
 
+# Since directories are timestamped, they are hard to locate. Provide
+# a symlink that always points to the last run.
+ln -snf "$work" /tmp/brist-latest
+
 [ -f "$setup" ] || die "Missing setup $setup"
 . "$setup"
 
