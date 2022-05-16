@@ -12,6 +12,19 @@ die()
     exit 1
 }
 
+# Not all sleep(1) implentations accept non-integer numbers. Below we
+# monkey-patch sleep to use usleep(1) in enviroments where it's needed, ie.
+# Busybox.
+sleep 0.1 2> /dev/null
+if [ "$?" -ne 0 ]; then
+    command -v usleep > /dev/null || \
+        die 'usleep(1) required when sleep(1) with fractions is not available'
+    sleep()
+    {
+        usleep $(echo | awk "{print $1 * 1000000}")
+    }
+fi
+
 alias fail='{ t_status=2; return 0; }'
 alias skip='{ t_status=1; return 0; }'
 alias pass='{ t_status=0; return 0; }'
