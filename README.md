@@ -32,6 +32,29 @@ Additional dependencies for developing and running on a PC:
 > This is also reason for `fakeroot`. On target only tcpdump is used.
 
 
+Usage
+-----
+
+```
+Usage:
+  brist [hrvX] [-f FILE] [-R FILE] [-t REGEXP] [-T CMD]
+Options:
+  -f FILE    Source FILE to map physical ports.  By default ~/.brist-setup.sh
+             is used, with fallback to /etc/brist-setup.sh, if neither exit,
+             veth-setup.sh from the brist directory is used
+  -h         This help text
+  -r         Randomize port map, saved in test output directory as shufdata
+  -R FILE    Use FILE as shufdata, useful when re-reunning the same test
+  -t REGEXP  Run only tests that match REGEXP
+  -T CMD     Complements -t REGEXP, which uses `grep -E`, CMD is custom filter
+  -v         Increase verbosity of tests and framework
+  -X         Enable eXperimental tests
+
+Bug report address: https://github.com/westermo/brist/issues
+Project homepage:   https://github.com/westermo/brist/
+```
+
+
 Running the Test Suite
 ----------------------
 
