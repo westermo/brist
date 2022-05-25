@@ -36,6 +36,26 @@ origo()
     done
 }
 
+usage()
+{
+    echo "Usage:"
+    echo "  brist [hrvX] [-f FILE] [-R FILE] [-t REGEXP] [-T CMD]"
+    echo "Options:"
+    echo "  -f FILE    Source FILE to map physical ports.  By default ~/.brist-setup.sh"
+    echo "             is used, with fallback to /etc/brist-setup.sh, if neither exit,"
+    echo "             veth-setup.sh from the brist directory is used"
+    echo "  -h         This help text"
+    echo "  -r         Randomize port map, saved in test output directory as shufdata"
+    echo "  -R FILE    Use FILE as shufdata, useful when re-reunning the same test"
+    echo "  -t REGEXP  Run only tests that match REGEXP"
+    echo "  -T CMD     Complements -t REGEXP, which uses \`grep -E\`, CMD is custom filter"
+    echo "  -v         Increase verbosity of tests and framework"
+    echo "  -X         Enable eXperimental tests"
+    echo
+    echo "Bug report address: https://github.com/westermo/brist/issues"
+    echo "Project homepage:   https://github.com/westermo/brist/"
+}
+
 V=0
 work=/tmp/brist-$(date +%F-%T | tr ' :' '--')
 filter=cat
@@ -44,10 +64,14 @@ filter=cat
 [ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
 [ ! "$setup" ] && setup=${root}/veth-setup.sh
 
-while getopts "f:rR:t:T:vX" opt; do
+while getopts "f:hrR:t:T:vX" opt; do
     case ${opt} in
 	f)
 	    setup=$(readlink -f $OPTARG)
+	    ;;
+	h)
+	    usage
+	    exit 0
 	    ;;
 	r)
 	    randomize=yes
