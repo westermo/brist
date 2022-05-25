@@ -47,6 +47,7 @@ usage()
     echo "  -h         This help text"
     echo "  -r         Randomize port map, saved in test output directory as shufdata"
     echo "  -R FILE    Use FILE as shufdata, useful when re-reunning the same test"
+    echo "  -S         Enable single-stepping of test(s), useful for debugging"
     echo "  -t REGEXP  Run only tests that match REGEXP"
     echo "  -T CMD     Complements -t REGEXP, which uses \`grep -E\`, CMD is custom filter"
     echo "  -v         Increase verbosity of tests and framework"
@@ -64,7 +65,7 @@ filter=cat
 [ -f ~/.brist-setup.sh ] && setup=~/.brist-setup.sh
 [ ! "$setup" ] && setup=${root}/veth-setup.sh
 
-while getopts "f:hrR:t:T:vX" opt; do
+while getopts "f:hrR:St:T:vX" opt; do
     case ${opt} in
 	f)
 	    setup=$(readlink -f $OPTARG)
@@ -79,6 +80,9 @@ while getopts "f:hrR:t:T:vX" opt; do
 	R)
 	    randomize=yes
 	    shufdata=$OPTARG
+	    ;;
+	S)
+	    single_step="yes"
 	    ;;
 	t)
 	    filter="grep -E"
