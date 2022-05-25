@@ -45,9 +45,10 @@ Options:
   -h         This help text
   -r         Randomize port map, saved in test output directory as shufdata
   -R FILE    Use FILE as shufdata, useful when re-reunning the same test
+  -S         Enable single-stepping of test(s), useful for debugging
   -t REGEXP  Run only tests that match REGEXP
   -T CMD     Complements -t REGEXP, which uses `grep -E`, CMD is custom filter
-  -v         Increase verbosity of tests and framework
+  -v         Increase verbosity of tests and framework, shows topology
   -X         Enable eXperimental tests
 
 Bug report address: https://github.com/westermo/brist/issues

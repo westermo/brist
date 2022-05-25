@@ -50,7 +50,7 @@ usage()
     echo "  -S         Enable single-stepping of test(s), useful for debugging"
     echo "  -t REGEXP  Run only tests that match REGEXP"
     echo "  -T CMD     Complements -t REGEXP, which uses \`grep -E\`, CMD is custom filter"
-    echo "  -v         Increase verbosity of tests and framework"
+    echo "  -v         Increase verbosity of tests and framework, shows topology"
     echo "  -X         Enable eXperimental tests"
     echo
     echo "Bug report address: https://github.com/westermo/brist/issues"
