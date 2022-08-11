@@ -109,6 +109,11 @@ mrouter_port()
 
     create_br $br0 "$bropts" $in $out $rport
 
+    if ! bridge -d link show | grep -q " mcast_router"; then
+        step "Mcast router port feature not supported, skipping."
+        skip
+    fi
+
     ip addr add ${ip4_src}/16 dev $h1
     ip addr add ${ip6_src}/64 dev $h1
 
