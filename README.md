@@ -80,7 +80,7 @@ Running a Single Test
 ---------------------
 
 ```sh
-$ make check BRIST_TEST=basic_stp_vlan
+$ make check ARGS="-t basic_stp_vlan"
 ```
 
 or, when installed:

@@ -22,7 +22,7 @@ SCRIPTS := *.sh suite/*.sh
 all: check
 
 check:
-	@unshare -r -n ./brist.sh -X
+	@unshare -r -n ./brist.sh -X $(ARGS)
 
 shell:
 	@unshare -r -n bash
