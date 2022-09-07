@@ -300,7 +300,25 @@ report()
 # Inject IGMP v2 query frames on interface $1
 mcast_query_start()
 {
-    nemesis igmp -d "$1" -p 0x11 -r 100 -c 100 -D 224.0.0.1 -i 10 &
+    local count=100
+    local ival=10
+
+    while getopts "c:i:" opt; do
+	case $opt in
+	    c)
+		count=$OPTARG
+		;;
+	    i)
+		ival=$OPTARG
+		;;
+	    *)
+		exit 1
+		;;
+	esac
+    done
+    shift $((OPTIND - 1))
+
+    nemesis igmp -d "$1" -p 0x11 -r 100 -c $count -D 224.0.0.1 -i $ival &
     eval "${1}_query=$!"
 }
 
