@@ -406,3 +406,12 @@ create_br()
     done
 }
 
+br_has()
+{
+    ip link add type bridge help 2>&1 | grep -q $1
+}
+
+brport_has()
+{
+    bridge link help 2>&1 | grep -q $1
+}
