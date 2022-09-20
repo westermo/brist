@@ -415,3 +415,38 @@ brport_has()
 {
     bridge link help 2>&1 | grep -q $1
 }
+
+br_test()
+{
+    local port="$1"
+    local setting="$2"
+    local val="$3"
+    local cmd=bridge
+    local altval=
+
+    # There are some inconsistencies in the output from iproute2 with
+    # regards to boolean values - we try to paper over those here.
+    case $val in
+	on)
+	    altval=1
+	    ;;
+	off)
+	    altval=0
+	    ;;
+	1)
+	    altval=on
+	    ;;
+	0)
+	    altval=off
+	    ;;
+    esac
+
+    if stat /sys/class/net/$port/bridge >/dev/null 2>&1; then
+	cmd=ip
+    fi
+
+    $cmd -d link show dev $port | grep -q "$setting $val" && return 0
+
+    [ "$altval" ] && \
+	$cmd -d link show dev $port | grep -q "$setting $altval"
+}
