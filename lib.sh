@@ -300,7 +300,25 @@ report()
 # Inject IGMP v2 query frames on interface $1
 mcast_query_start()
 {
-    nemesis igmp -d "$1" -p 0x11 -r 100 -c 100 -D 224.0.0.1 -i 10 &
+    local count=100
+    local ival=10
+
+    while getopts "c:i:" opt; do
+	case $opt in
+	    c)
+		count=$OPTARG
+		;;
+	    i)
+		ival=$OPTARG
+		;;
+	    *)
+		exit 1
+		;;
+	esac
+    done
+    shift $((OPTIND - 1))
+
+    nemesis igmp -d "$1" -p 0x11 -r 100 -c $count -D 224.0.0.1 -i $ival &
     eval "${1}_query=$!"
 }
 
@@ -406,3 +424,47 @@ create_br()
     done
 }
 
+br_has()
+{
+    ip link add type bridge help 2>&1 | grep -q $1
+}
+
+brport_has()
+{
+    bridge link help 2>&1 | grep -q $1
+}
+
+br_test()
+{
+    local port="$1"
+    local setting="$2"
+    local val="$3"
+    local cmd=bridge
+    local altval=
+
+    # There are some inconsistencies in the output from iproute2 with
+    # regards to boolean values - we try to paper over those here.
+    case $val in
+	on)
+	    altval=1
+	    ;;
+	off)
+	    altval=0
+	    ;;
+	1)
+	    altval=on
+	    ;;
+	0)
+	    altval=off
+	    ;;
+    esac
+
+    if stat /sys/class/net/$port/bridge >/dev/null 2>&1; then
+	cmd=ip
+    fi
+
+    $cmd -d link show dev $port | grep -q "$setting $val" && return 0
+
+    [ "$altval" ] && \
+	$cmd -d link show dev $port | grep -q "$setting $altval"
+}
