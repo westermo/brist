@@ -8,7 +8,7 @@ lag_setup()
     ip link set $bond type bond miimon 100 mode balance-xor
 
     lag_link_setup $@
-    
+
     ip link set $bond up
 }
 
@@ -19,25 +19,28 @@ lag_link_setup()
     local links=$@
 
     for link in $links; do
-        ip link set $link down
-        ip link set $link master $bond
-        ip link set $link up
+	ip link set $link down
+	ip link set $link master $bond
+	ip link set $link up
 
-        waitlink $link
+	waitlink $link
     done
 }
 
 lag_basic_connectivity()
 {
     require2loops
-    
+
     step "Setup basic link aggregation"
 
     lag_setup bond0 $h1
     lag_setup bond1 $b1
 
+    waitlink bond0
+    waitlink bond1
+
     capture bond1
-    
+
     step "Inject traffic towards bond1 from bond0"
     eth -I bond1 -i bond0 | { cat; echo from bond0; } | inject bond0
 
@@ -62,9 +65,12 @@ lag_add_link()
 
     lag_link_setup bond0 $h3
     lag_link_setup bond1 $b3
-    
+
+    waitlink bond0
+    waitlink bond1
+
     capture bond1
-    
+
     step "Inject traffic from bond0 towards bond1 "
     eth -I bond1 -i bond0 | { cat; echo from bond0; } | inject bond0
 
@@ -92,7 +98,9 @@ lag_remove_link()
 
     ip link set bond0 up
     ip link set bond1 up
+
     waitlink bond0
+    waitlink bond1
 
     capture bond1
 
