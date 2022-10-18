@@ -36,6 +36,9 @@ lag_basic_connectivity()
     lag_setup bond0 $h1
     lag_setup bond1 $b1
 
+    waitlink bond0
+    waitlink bond1
+
     capture bond1
 
     step "Inject traffic towards bond1 from bond0"
@@ -62,6 +65,9 @@ lag_add_link()
 
     lag_link_setup bond0 $h3
     lag_link_setup bond1 $b3
+
+    waitlink bond0
+    waitlink bond1
 
     capture bond1
 
@@ -92,7 +98,9 @@ lag_remove_link()
 
     ip link set bond0 up
     ip link set bond1 up
+
     waitlink bond0
+    waitlink bond1
 
     capture bond1
 
