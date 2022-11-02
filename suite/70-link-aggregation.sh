@@ -4,7 +4,7 @@ lag_setup()
 {
     local bond=$1
 
-    ip link add $bond type bond
+    ip link add $bond type bond || skip
     ip link set $bond type bond miimon 100 mode balance-xor
 
     lag_link_setup $@
